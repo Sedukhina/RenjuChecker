@@ -42,28 +42,32 @@ std::array<int, 3> RenjuCheckResult(std::array<std::array<int, 19>, 19>& Board)
 
 				if (Coef * RowCount >= 0)
 				{
-					if (Coef * RowCount == 4) { return { Board[i][j], i, j - 4 }; }
+					if (Coef * RowCount == 4 &&
+						((j + 1 == 19) || Board[i][j] != Board[i][j+1])) { return { Board[i][j], i, j - 4 }; }
 					RowCount += Coef;
 				}
 				else { RowCount = Coef; }
 
 				if (Coef * ColumnsCount[j] >= 0)
 				{
-					if (Coef * ColumnsCount[j] == 4) { return { Board[i][j], i - 4, j }; }
+					if (Coef * ColumnsCount[j] == 4 &&
+						((i + 1 == 19) || Board[i][j] != Board[i + 1][j])) { return { Board[i][j], i - 4, j }; }
 					ColumnsCount[j] += Coef;
 				}
 				else { ColumnsCount[j] = Coef; }
 
 				if (Coef * DiagonalsCount[CurDiag] >= 0)
 				{
-					if (Coef * DiagonalsCount[CurDiag] == 4) { return { Board[i][j], i - 4, j + 4 }; }
+					if (Coef * DiagonalsCount[CurDiag] == 4 &&
+						((i + 1 == 19) || ((j - 1 == -1) || Board[i][j] != Board[i][j - 1]))) { return { Board[i][j], i - 4, j + 4 }; }
 					DiagonalsCount[CurDiag] += Coef;
 				}
 				else { DiagonalsCount[CurDiag] = Coef; }
 
 				if (Coef * ReverseDiagonalsCount[CurInvDiag] >= 0)
 				{
-					if (Coef * ReverseDiagonalsCount[CurInvDiag] == 4) { return { Board[i][j], i - 4, j - 4 }; }
+					if (Coef * ReverseDiagonalsCount[CurInvDiag] == 4 &&
+						((i + 1 == 19) || ((j + 1 == 19) || Board[i][j] != Board[i][j + 1])))  { return { Board[i][j], i - 4, j - 4 }; }
 					ReverseDiagonalsCount[CurInvDiag] += Coef;
 				}
 				else { ReverseDiagonalsCount[CurInvDiag] = Coef; };
