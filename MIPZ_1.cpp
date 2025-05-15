@@ -43,6 +43,7 @@ std::array<int, 3> RenjuCheckResult(std::array<std::array<int, 19>, 19>& Board)
 				if (Coef * RowCount >= 0)
 				{
 					if (Coef * RowCount == 4 &&
+						// Check if more than five stones in a row
 						((j + 1 == 19) || Board[i][j] != Board[i][j+1])) { return { Board[i][j], i, j - 4 }; }
 					RowCount += Coef;
 				}
@@ -51,6 +52,7 @@ std::array<int, 3> RenjuCheckResult(std::array<std::array<int, 19>, 19>& Board)
 				if (Coef * ColumnsCount[j] >= 0)
 				{
 					if (Coef * ColumnsCount[j] == 4 &&
+						// Check if more than five stones in a row
 						((i + 1 == 19) || Board[i][j] != Board[i + 1][j])) { return { Board[i][j], i - 4, j }; }
 					ColumnsCount[j] += Coef;
 				}
@@ -59,6 +61,7 @@ std::array<int, 3> RenjuCheckResult(std::array<std::array<int, 19>, 19>& Board)
 				if (Coef * DiagonalsCount[CurDiag] >= 0)
 				{
 					if (Coef * DiagonalsCount[CurDiag] == 4 &&
+						// Check if more than five stones in a row
 						((i + 1 == 19) || ((j - 1 == -1) || Board[i][j] != Board[i][j - 1]))) { return { Board[i][j], i - 4, j + 4 }; }
 					DiagonalsCount[CurDiag] += Coef;
 				}
@@ -67,6 +70,7 @@ std::array<int, 3> RenjuCheckResult(std::array<std::array<int, 19>, 19>& Board)
 				if (Coef * ReverseDiagonalsCount[CurInvDiag] >= 0)
 				{
 					if (Coef * ReverseDiagonalsCount[CurInvDiag] == 4 &&
+						// Check if more than five stones in a row
 						((i + 1 == 19) || ((j + 1 == 19) || Board[i][j] != Board[i][j + 1])))  { return { Board[i][j], i - 4, j - 4 }; }
 					ReverseDiagonalsCount[CurInvDiag] += Coef;
 				}
