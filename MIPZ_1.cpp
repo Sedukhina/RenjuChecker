@@ -5,26 +5,34 @@
 #include <iostream>
 #include <string>
 
+const int BOARD_SIZE = 19;
+const int WIN_STONES_ROW_SIZE = 5;
+
+bool InTheBoardBounds(int i)
+{
+	return ((BOARD_SIZE > i) && (i >= 0)) ? true : false;
+}
+
 // Returns array with: winner, row number, column number 
-std::array<int, 3> RenjuCheckResult(std::array<std::array<int, 19>, 19>& Board)
+std::array<int, 3> RenjuCheckResult(std::array<std::array<int, BOARD_SIZE>, BOARD_SIZE>& Board)
 {
 	// Arrays to count stones in columns and diagonals
 	// If count > 0 streak belongs to player 1, if count < 0 — player 2
-	std::array<int, 19> ColumnsCount = {};
-	// Formula for diagonal lines count: 2n-1
-	std::array<int, 38> DiagonalsCount = {};
-	std::array<int, 38> ReverseDiagonalsCount = {};
+	std::array<int, BOARD_SIZE> ColumnsCount = {};
+	// Formula for diagonal lines count: 2n
+	std::array<int, 2*BOARD_SIZE> DiagonalsCount = {};
+	std::array<int, 2*BOARD_SIZE> ReverseDiagonalsCount = {};
 
 	int CurDiag;
 	int CurInvDiag;
 
-	for (int i = 0; i < 19; i++)
+	for (int i = 0; i < BOARD_SIZE; i++)
 	{
 		CurDiag = i;
-		CurInvDiag = 18 - i;
+		CurInvDiag = BOARD_SIZE - 1 - i;
 
 		volatile int RowCount = 0;
-		for (int j = 0; j < 19; j++)
+		for (int j = 0; j < BOARD_SIZE; j++)
 		{
 			CurDiag++;
 			CurInvDiag++;
@@ -42,39 +50,63 @@ std::array<int, 3> RenjuCheckResult(std::array<std::array<int, 19>, 19>& Board)
 
 				if (Coef * RowCount >= 0)
 				{
-					if (Coef * RowCount == 4 &&
-						// Check if more than five stones in a row
-						((j + 1 == 19) || Board[i][j] != Board[i][j+1])) { return { Board[i][j], i, j - 4 }; }
+					if (Coef * RowCount == WIN_STONES_ROW_SIZE - 1 &&
+						// Check if more than WIN_STONES_ROW_SIZE stones placed
+						(!InTheBoardBounds(j+1) || Board[i][j] != Board[i][j+1]))
+					{ 
+						return { Board[i][j], i, j - WIN_STONES_ROW_SIZE + 1 };
+					}
 					RowCount += Coef;
 				}
-				else { RowCount = Coef; }
+				else 
+				{ 
+					RowCount = Coef; 
+				}
 
 				if (Coef * ColumnsCount[j] >= 0)
 				{
-					if (Coef * ColumnsCount[j] == 4 &&
-						// Check if more than five stones in a row
-						((i + 1 == 19) || Board[i][j] != Board[i + 1][j])) { return { Board[i][j], i - 4, j }; }
+					if (Coef * ColumnsCount[j] == WIN_STONES_ROW_SIZE &&
+						// Check if more than WIN_STONES_ROW_SIZE stones placed
+						(!InTheBoardBounds(i + 1) || Board[i][j] != Board[i + 1][j]))
+					{ 
+						return { Board[i][j], i - WIN_STONES_ROW_SIZE + 1, j };
+					}
 					ColumnsCount[j] += Coef;
 				}
-				else { ColumnsCount[j] = Coef; }
+				else 
+				{ 
+					ColumnsCount[j] = Coef; 
+				}
 
 				if (Coef * DiagonalsCount[CurDiag] >= 0)
 				{
 					if (Coef * DiagonalsCount[CurDiag] == 4 &&
-						// Check if more than five stones in a row
-						((i + 1 == 19) || ((j - 1 == -1) || Board[i][j] != Board[i][j - 1]))) { return { Board[i][j], i - 4, j + 4 }; }
+						// Check if more than WIN_STONES_ROW_SIZE stones placed
+						(!InTheBoardBounds(i + 1) || (!InTheBoardBounds(j - 1) || Board[i][j] != Board[i][j - 1])))
+					{ 
+						return { Board[i][j], i - WIN_STONES_ROW_SIZE + 1, j + WIN_STONES_ROW_SIZE - 1 };
+					}
 					DiagonalsCount[CurDiag] += Coef;
 				}
-				else { DiagonalsCount[CurDiag] = Coef; }
+				else 
+				{ 
+					DiagonalsCount[CurDiag] = Coef; 
+				}
 
 				if (Coef * ReverseDiagonalsCount[CurInvDiag] >= 0)
 				{
-					if (Coef * ReverseDiagonalsCount[CurInvDiag] == 4 &&
-						// Check if more than five stones in a row
-						((i + 1 == 19) || ((j + 1 == 19) || Board[i][j] != Board[i][j + 1])))  { return { Board[i][j], i - 4, j - 4 }; }
+					if (Coef * ReverseDiagonalsCount[CurInvDiag] == WIN_STONES_ROW_SIZE - 1 &&
+						// Check if more than WIN_STONES_ROW_SIZE stones placed
+						(!InTheBoardBounds(i + 1) || (!InTheBoardBounds(j + 1) || Board[i][j] != Board[i][j + 1])))
+					{ 
+						return { Board[i][j], i - WIN_STONES_ROW_SIZE + 1, j - WIN_STONES_ROW_SIZE + 1 };
+					}
 					ReverseDiagonalsCount[CurInvDiag] += Coef;
 				}
-				else { ReverseDiagonalsCount[CurInvDiag] = Coef; };
+				else 
+				{ 
+					ReverseDiagonalsCount[CurInvDiag] = Coef; 
+				};
 			}
 		}
 	}
@@ -104,13 +136,13 @@ int main(int argc, char* argv[])
 
 	for (size_t CaseNum = 0; CaseNum < x; CaseNum++)
 	{
-		std::array<std::array<int, 19>, 19> Board = { {} };
-		for (size_t i = 0; i < 19; i++)
+		std::array<std::array<int, BOARD_SIZE>, BOARD_SIZE> Board = { {} };
+		for (size_t i = 0; i < BOARD_SIZE; i++)
 		{
 			if (getline(Input, InpuRow))
 			{
 				std::stringstream ParsedRow(InpuRow);
-				for (size_t j = 0; j < 19; j++)
+				for (size_t j = 0; j < BOARD_SIZE; j++)
 				{
 					ParsedRow >> Board[i][j];
 				}
